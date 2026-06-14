@@ -9,7 +9,6 @@
 
 PHP library per decodificare file `.p7m` (PKCS#7 signed) ed estrarre il contenuto XML. Progettata per la [Fattura Elettronica italiana](https://www.agenziaentrate.gov.it/portale/web/guest/schede/fatturapa) ma funziona con qualsiasi file P7M.
 
-Il package e' disponibile su [Packagist](https://packagist.org/packages/controlaltjeff/p7m-fattura-decoder) e puo' essere pubblicato anche su altri registri PHP come [Firegento](https://firegento.com/), [Libraries.io](https://libraries.io/), [PHP Packages](https://php.packages.org/) o piattaforme analoghe.
 
 ## Indice
 
