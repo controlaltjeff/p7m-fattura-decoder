@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P7M Decoder — PHP Library per Fattura Elettronica PKCS#7</title>
+    <meta name="description" content="PHP library per decodificare file P7M (PKCS#7) ed estrarre XML dalla Fattura Elettronica italiana. Supporta DER, PEM, Base64 e correzioni automatiche OCR.">
+    <meta name="keywords" content="p7m, fattura elettronica, php, pkcs7, xml, sdi, decoder, fatturapa, electronic invoice, italy">
+    <meta name="author" content="controlaltjeff">
+    <meta property="og:title" content="P7M Decoder — PHP Library per Fattura Elettronica PKCS#7">
+    <meta property="og:description" content="Decodifica file P7M della Fattura Elettronica italiana con 8 strategie automatiche e correzioni OCR.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://controlaltjeff.github.io/p7m-fattura-decoder/">
+    <style>
+        :root {
+            --primary: #1a56db;
+            --primary-dark: #1e3a8a;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #f1f5f9;
+            --green: #16a34a;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700; }
+        .hero .tagline { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; }
+        .hero .badges { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+        .hero .badges img { height: 22px; }
+        .hero .cta {
+            display: inline-block;
+            background: white;
+            color: var(--primary-dark);
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0.3rem;
+            transition: transform 0.2s;
+        }
+        .hero .cta:hover { transform: translateY(-2px); }
+        .hero .cta.secondary {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        h2 {
+            font-size: 1.6rem;
+            margin: 2.5rem 0 1rem;
+            color: var(--primary-dark);
+        }
+        h3 { font-size: 1.2rem; margin: 1.5rem 0 0.5rem; }
+        p { margin-bottom: 1rem; }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.9em; }
+        p code, li code {
+            background: var(--code-bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+        li { margin-bottom: 0.3rem; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        th { background: var(--code-bg); font-weight: 600; }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .feature {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.2rem;
+        }
+        .feature h4 { margin-bottom: 0.3rem; }
+        .feature p { color: var(--text-muted); font-size: 0.95rem; margin: 0; }
+        .badge { display: inline-block; background: var(--green); color: white; font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600; }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+        footer a { color: var(--primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>P7M Decoder</h1>
+    <p class="tagline">PHP library per decodificare file P7M della Fattura Elettronica italiana</p>
+    <div class="badges">
+        <a href="https://packagist.org/packages/controlaltjeff/p7m-fattura-decoder">
+            <img src="https://img.shields.io/packagist/v/controlaltjeff/p7m-fattura-decoder" alt="Packagist Version">
+        </a>
+        <a href="https://packagist.org/packages/controlaltjeff/p7m-fattura-decoder">
+            <img src="https://img.shields.io/packagist/dt/controlaltjeff/p7m-fattura-decoder" alt="Downloads">
+        </a>
+        <a href="https://packagist.org/packages/controlaltjeff/p7m-fattura-decoder">
+            <img src="https://img.shields.io/packagist/php-v/controlaltjeff/p7m-fattura-decoder" alt="PHP Version">
+        </a>
+        <a href="LICENSE">
+            <img src="https://img.shields.io/packagist/l/controlaltjeff/p7m-fattura-decoder" alt="License">
+        </a>
+    </div>
+    <a href="https://packagist.org/packages/controlaltjeff/p7m-fattura-decoder" class="cta">Installa con Composer</a>
+    <a href="https://github.com/controlaltjeff/p7m-fattura-decoder" class="cta secondary">GitHub</a>
+</div>
+
+<div class="container">
+
+    <h2>Perche' P7M Decoder?</h2>
+
+    <div class="feature-grid">
+        <div class="feature">
+            <h4>8 strategie di decodifica</h4>
+            <p>Tenta automaticamente DER, PEM, Base64, estrazione manuale e correzione fuzzy. Si ferma al primo successo.</p>
+        </div>
+        <div class="feature">
+            <h4>Correzioni automatiche</h4>
+            <p>30+ pattern di correzione OCR e encoding. Corregge tag XML danneggiati con Levenshtein distance.</p>
+        </div>
+        <div class="feature">
+            <h4>PHP 5.3+</h4>
+            <p>Compatibile con qualsiasi versione PHP. Nessuna dipendenza esterna a runtime.</p>
+        </div>
+        <div class="feature">
+            <h4>Zero configurazione</h4>
+            <p>Funziona subito. Nessun setup, nessuna configurazione. Installa e usa.</p>
+        </div>
+    </div>
+
+    <h2>Installazione</h2>
+
+    <pre><code>composer require controlaltjeff/p7m-fattura-decoder</code></pre>
+
+    <h2>Utilizzo rapido</h2>
+
+    <div class="card">
+        <h3>Decodifica da file</h3>
+        <pre><code>&lt;?php
+use Controlaltjeff\P7MDecoder\P7MDecoder;
+
+$xml = P7MDecoder::decodeFile('fattura.xml.p7m');
+
+if ($xml === null) {
+    throw new \RuntimeException('Impossibile decodificare il file P7M');
+}</code></pre>
+    </div>
+
+    <div class="card">
+        <h3>Decodifica da stringa</h3>
+        <pre><code>&lt;?php
+$content = file_get_contents('fattura.xml.p7m');
+$xml = P7MDecoder::decodeString($content);</code></pre>
+    </div>
+
+    <div class="card">
+        <h3>Correzioni applicate</h3>
+        <pre><code>&lt;?php
+$xml = P7MDecoder::decodeFile('fattura-corrotta.p7m');
+
+$corrections = P7MDecoder::getLastCorrections();
+foreach ($corrections as $fix) {
+    echo "Tag corretto: {$fix['from']} &rarr; {$fix['to']}\n";
+}
+// Es: Tag corretto: DettHaglioLinee &rarr; DettaglioLinee</code></pre>
+    </div>
+
+    <h2>API</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Metodo</th>
+                <th>Descrizione</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>P7MDecoder::decodeFile(string $path): ?string</code></td>
+                <td>Decodifica un file .p7m e restituisce l'XML, oppure <code>null</code> in caso di errore</td>
+            </tr>
+            <tr>
+                <td><code>P7MDecoder::decodeString(string $content): ?string</code></td>
+                <td>Decodifica contenuto P7M da stringa (DER, PEM, Base64, o XML valido)</td>
+            </tr>
+            <tr>
+                <td><code>P7MDecoder::getLastCorrections(): array</code></td>
+                <td>Restituisce le correzioni applicate durante l'ultima decodifica</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Come funziona</h2>
+
+    <p>La libreria tenta la decodifica usando <strong>8 strategie</strong> in ordine, fermandosi al primo successo:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Strategia</th>
+                <th>Descrizione</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td>Plain XML</td><td>Se il contenuto e' gia' XML valido, lo restituisce direttamente</td></tr>
+            <tr><td>2</td><td>OpenSSL DER</td><td><code>openssl smime -verify -inform DER</code></td></tr>
+            <tr><td>3</td><td>Base64 &rarr; DER</td><td>Decodifica Base64 + verifica DER</td></tr>
+            <tr><td>4</td><td>OpenSSL PEM</td><td><code>openssl smime -verify -inform PEM</code> (include conversione Base64 &rarr; PEM)</td></tr>
+            <tr><td>5</td><td>PHP openssl_pkcs7_verify()</td><td>Fallback via estensione PHP</td></tr>
+            <tr><td>6</td><td>Estrazione manuale</td><td>Ricerca fragment XML nel binario</td></tr>
+            <tr><td>7</td><td>Correzione tag</td><td>Ricerca fuzzy (Levenshtein) su tag XML danneggiati</td></tr>
+            <tr><td>8</td><td>Base64 + estrazione manuale</td><td>Decodifica Base64 + fragment XML</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Casi d'uso comuni</h2>
+
+    <div class="card">
+        <h3>Elaborare FatturePA ricevute dal SDI</h3>
+        <pre><code>&lt;?php
+use Controlaltjeff\P7MDecoder\P7MDecoder;
+
+$xml = P7MDecoder::decodeFile('IT01234567890_FPR12_001.xml.p7m');
+
+$dom = new DOMDocument();
+$dom->loadXML($xml);
+
+$xpath = new DOMXPath($dom);
+$numero = $xpath->query('//Numero')->item(0)->nodeValue;
+$importo = $xpath->query('//ImportoTotaleDocumento')->item(0)->nodeValue;</code></pre>
+    </div>
+
+    <div class="card">
+        <h3>Elaborare piu' file</h3>
+        <pre><code>&lt;?php
+use Controlaltjeff\P7MDecoder\P7MDecoder;
+
+$files = glob('/path/to/fatture/*.p7m');
+foreach ($files as $file) {
+    $xml = P7MDecoder::decodeFile($file);
+    if ($xml !== null) {
+        file_put_contents(str_replace('.p7m', '.xml', $file), $xml);
+    }
+}</code></pre>
+    </div>
+
+    <h2>Requisiti</h2>
+
+    <ul>
+        <li><strong>PHP 5.3+</strong> (runtime) / PHP 8.1+ (strumenti di sviluppo)</li>
+        <li><code>ext-dom</code>, <code>ext-libxml</code> (sempre richieste)</li>
+        <li><code>ext-openssl</code> (consigliata &mdash; strategia di decodifica primaria)</li>
+        <li><code>openssl</code> CLI (opzionale &mdash; verifica DER/PEM)</li>
+    </ul>
+
+    <h2>Sviluppo</h2>
+
+    <pre><code>git clone https://github.com/controlaltjeff/p7m-fattura-decoder.git
+cd p7m-fattura-decoder
+composer install
+composer check</code></pre>
+
+    <h2>Licenza</h2>
+
+    <p>Licenza MIT. Vedi <a href="https://github.com/controlaltjeff/p7m-fattura-decoder/blob/main/LICENSE">LICENSE</a> per dettagli.</p>
+
+</div>
+
+<footer>
+    <p>P7M Decoder &mdash; <a href="https://packagist.org/packages/controlaltjeff/p7m-fattura-decoder">Packagist</a> &middot; <a href="https://github.com/controlaltjeff/p7m-fattura-decoder">GitHub</a></p>
+</footer>
+
+</body>
+</html>
