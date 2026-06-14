@@ -39,5 +39,10 @@
         "fix-dry": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff",
         "mutate": "infection --threads=4 --show-mutations --no-progress",
         "check": ["@test", "@stan", "@fix-dry"]
+    },
+    "config": {
+        "allow-plugins": {
+            "infection/extension-installer": true
+        }
     }
 }
