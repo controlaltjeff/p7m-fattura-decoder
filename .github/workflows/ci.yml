@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }} - ${{ matrix.job }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.2', '8.3', '8.4']
+        job: ['phpunit']
+        include:
+          - php: '8.3'
+            job: 'phpstan'
+          - php: '8.3'
+            job: 'php-cs-fixer'
+          - php: '8.3'
+            job: 'infection'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, libxml, openssl
+          coverage: ${{ matrix.job == 'infection' && 'pcov' || (matrix.job == 'phpunit' && 'xdebug' || 'none') }}
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Install Infection
+        if: matrix.job == 'infection'
+        run: composer require --dev infection/infection:^0.29 --no-interaction
+
+      - name: Run PHPUnit
+        if: matrix.job == 'phpunit'
+        run: composer test
+
+      - name: Run PHPStan
+        if: matrix.job == 'phpstan'
+        run: composer stan
+
+      - name: Run PHP-CS-Fixer (dry-run)
+        if: matrix.job == 'php-cs-fixer'
+        run: composer fix-dry
+
+      - name: Run Infection
+        if: matrix.job == 'infection'
+        run: |
+          mkdir -p build/coverage-xml
+          vendor/bin/phpunit --testsuite=Unit --coverage-xml=build/coverage-xml --log-junit=build/coverage-xml/junit.xml
+          vendor/bin/infection --threads=4 --show-mutations --no-progress --skip-initial-tests --coverage=build/coverage-xml
+          git checkout -- tests/fixtures/

@@ -1,0 +1,21 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": [
+            "src"
+        ]
+    },
+    "timeout": 60,
+    "testFrameworkOptions": "--testsuite=Unit",
+    "logs": {
+        "text": "infection.log"
+    },
+    "tmpDir": "tmp/infection",
+    "phpUnit": {
+        "configDir": "."
+    },
+    "mutators": {
+        "@default": true
+    },
+    "minCoveredMsi": 80
+}

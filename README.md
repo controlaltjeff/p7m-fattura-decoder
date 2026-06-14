@@ -1,5 +1,11 @@
 # P7M Decoder
 
+[![CI](https://github.com/controlaltjeff/p7m-fattura-decoder/actions/workflows/ci.yml/badge.svg)](https://github.com/controlaltjeff/p7m-fattura-decoder/actions/workflows/ci.yml)
+[![Packagist Version](https://img.shields.io/packagist/v/controlaltjeff/p7m-fattura-decoder)](https://packagist.org/packages/controlaltjeff/p7m-fattura-decoder)
+[![PHP Version Require](https://img.shields.io/packagist/php-v/controlaltjeff/p7m-fattura-decoder)](https://packagist.org/packages/controlaltjeff/p7m-fattura-decoder)
+[![License](https://img.shields.io/packagist/l/controlaltjeff/p7m-fattura-decoder)](LICENSE)
+[![PHPStan Level](https://img.shields.io/badge/PHPStan-level%208-brightgreen)](https://phpstan.org/)
+
 PHP library per decodificare file `.p7m` (PKCS#7 signed) ed estrarre il contenuto XML firmato.
 
 A PHP library to decode P7M (PKCS#7 signed) files and extract the signed XML content. Designed with the Italian Fattura Elettronica system in mind.
@@ -70,7 +76,15 @@ Le correzioni applicate sono accessibili via `P7MDecoder::getLastCorrections()`.
 
 ```bash
 composer install
-composer test
-composer stan
-composer check
+composer test       # PHPUnit
+composer stan       # PHPStan level 8
+composer fix-dry    # PHP-CS-Fixer (dry-run)
+composer check      # Test + Stan + CS Fixer
+```
+
+Per mutation testing (richiede pcov o xdebug):
+
+```bash
+composer require --dev infection/infection:^0.29
+composer mutate
 ```
