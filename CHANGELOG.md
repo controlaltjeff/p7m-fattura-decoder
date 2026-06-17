@@ -5,6 +5,11 @@ Tutti i cambiamenti notevoli a questo progetto saranno documentati in questo fil
 Il formato si basa su [Keep a Changelog](https://keepachangelog.com/it/1.1.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/).
 
+## [1.0.1] - 2026-06-17
+
+### Fixed
+- Detect e correzione xml malformato con binary data nei tag
+
 ## [1.0.0] - 2026-06-14
 
 ### Aggiunto
