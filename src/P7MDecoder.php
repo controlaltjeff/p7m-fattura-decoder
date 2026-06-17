@@ -390,7 +390,12 @@ final class P7MDecoder
             return null;
         }
 
-        $cleaned = preg_replace('/[^\x20-\x7E]/', '', $fragment);
+        $cleaned = self::cleanTagNames($fragment);
+        if (self::isXml($cleaned)) {
+            return $cleaned;
+        }
+
+        $cleaned = preg_replace('/[^\x20-\x7E]/', '', $cleaned);
         if ($cleaned === null) {
             return null;
         }
@@ -444,6 +449,43 @@ final class P7MDecoder
         }
 
         return null;
+    }
+
+    /**
+     * Cleans tag names by matching across binary garbage inside tags.
+     * Uses known valid tags to reconstruct correct tag names.
+     *
+     * @param string $xml
+     *
+     * @return string
+     */
+    private static function cleanTagNames(string $xml): string
+    {
+        $result = preg_replace_callback(
+            '/<(\/?)([A-Za-z][A-Za-z0-9]*)[^>]*?([A-Za-z0-9]*)>/',
+            function ($matches) {
+                $slash = $matches[1];
+                $prefix = $matches[2];
+                $suffix = $matches[3];
+                $fullTag = $prefix . $suffix;
+
+                $validSet = array_flip(self::getValidTags());
+                if (isset($validSet[$fullTag])) {
+                    return '<' . $slash . $fullTag . '>';
+                }
+
+                foreach (self::getValidTags() as $valid) {
+                    if (str_starts_with($valid, $prefix) && str_ends_with($valid, $suffix)) {
+                        return '<' . $slash . $valid . '>';
+                    }
+                }
+
+                return $matches[0];
+            },
+            $xml
+        );
+
+        return $result ?? $xml;
     }
 
     /**
