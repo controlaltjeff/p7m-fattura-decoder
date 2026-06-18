@@ -5,12 +5,12 @@ namespace Controlaltjeff\P7MDecoder;
 final class P7MDecoder
 {
     /** @var array<int, array{from: string, to: string, distance: int}> */
-    private static $lastCorrections = [];
+    private static $lastCorrections = array();
 
     /** @return list<string> */
     private static function getValidTags()
     {
-        return [
+        return array(
             'ABI','AlCassa','AlboProfessionale','AlgoritmoCompressione','AliquotaIVA',
             'AliquotaRitenuta','Allegati','AltriDatiGestionali','Anagrafica','Arrotondamento',
             'Art73','Attachment','BIC','Beneficiario','BolloVirtuale','CAB','CAP',
@@ -49,7 +49,7 @@ final class P7MDecoder
             'TipoCessionePrestazione','TipoDato','TipoDocumento','TipoResa','TipoRitenuta',
             'Titolo','TitoloQuietanzante','TotalePercorso','Ufficio','UnitaMisura',
             'UnitaMisuraPeso',
-        ];
+        );
     }
     /**
      * Decode a .p7m file and return its XML content.
@@ -104,7 +104,7 @@ final class P7MDecoder
      */
     private static function decode($content, $filePath = null)
     {
-        self::$lastCorrections = [];
+        self::$lastCorrections = array();
         $trimmed = trim($content);
         if ($trimmed === '') {
             return null;
@@ -210,7 +210,7 @@ final class P7MDecoder
      */
     private static function tryBase64DecodedBinary($content)
     {
-        $clean = str_replace(["\r", "\n"], '', $content);
+        $clean = str_replace(array("\r", "\n"), '', $content);
         if (!preg_match('/^[A-Za-z0-9\/+]*={0,2}$/', $clean)) {
             return null;
         }
@@ -260,7 +260,7 @@ final class P7MDecoder
             return $result;
         }
 
-        $clean = str_replace(["\r", "\n"], '', $trimmed);
+        $clean = str_replace(array("\r", "\n"), '', $trimmed);
         if (!preg_match('/^[A-Za-z0-9\/+]*={0,2}$/', $clean)) {
             return null;
         }
@@ -355,7 +355,7 @@ final class P7MDecoder
             $tempFile,
             PKCS7_NOVERIFY,
             '/dev/null',
-            [],
+            array(),
             '/dev/null',
             $tempOut
         );
@@ -432,11 +432,11 @@ final class P7MDecoder
 
             if ($bestTag !== null && $bestDist <= 1 && strlen($tag) >= 4) {
                 error_log('P7MDecoder: tag correction: <' . $tag . '> -> <' . $bestTag . '> (distance ' . $bestDist . ')');
-                self::$lastCorrections[] = [
+                self::$lastCorrections[] = array(
                     'from' => $tag,
                     'to' => $bestTag,
                     'distance' => $bestDist,
-                ];
+                );
                 $fixed = str_replace('<' . $tag . '>', '<' . $bestTag . '>', $fixed);
                 $fixed = str_replace('</' . $tag . '>', '</' . $bestTag . '>', $fixed);
                 $corrections++;
@@ -459,7 +459,7 @@ final class P7MDecoder
      *
      * @return string
      */
-    private static function cleanTagNames(string $xml): string
+    private static function cleanTagNames($xml)
     {
         $result = preg_replace_callback(
             '/<(\/?)([A-Za-z][A-Za-z0-9]*)[^>]*?([A-Za-z0-9]*)>/',
@@ -475,7 +475,7 @@ final class P7MDecoder
                 }
 
                 foreach (self::getValidTags() as $valid) {
-                    if (str_starts_with($valid, $prefix) && str_ends_with($valid, $suffix)) {
+                    if (strpos($valid, $prefix) === 0 && substr($valid, -strlen($suffix)) === $suffix) {
                         return '<' . $slash . $valid . '>';
                     }
                 }
@@ -485,7 +485,7 @@ final class P7MDecoder
             $xml
         );
 
-        return $result ?? $xml;
+        return ($result !== null ? $result : $xml);
     }
 
     /**
@@ -514,7 +514,7 @@ final class P7MDecoder
      */
     private static function tryBase64ManualExtraction($content)
     {
-        $clean = str_replace(["\r", "\n", ' '], '', $content);
+        $clean = str_replace(array("\r", "\n", ' '), '', $content);
         if (!preg_match('/^[A-Za-z0-9\/+]*={0,2}$/', $clean)) {
             return null;
         }
@@ -543,7 +543,7 @@ final class P7MDecoder
      */
     private static function extractXmlFragment($data)
     {
-        $candidates = [];
+        $candidates = array();
 
         $pos = strpos($data, '<?xml ');
         if ($pos !== false) {
@@ -580,11 +580,11 @@ final class P7MDecoder
         $start = min($candidates);
         $xml = substr($data, $start);
 
-        $endMarkers = [
+        $endMarkers = array(
             '</p:FatturaElettronica>',
             '</FatturaElettronica>',
             '</FatturaElettronicaSemplificata>',
-        ];
+        );
 
         $end = false;
         foreach ($endMarkers as $marker) {
