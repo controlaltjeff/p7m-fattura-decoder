@@ -298,14 +298,15 @@ final class P7MDecoder
         );
         exec($cmd, $output, $exitCode);
 
-        if ($exitCode === 0 && file_exists($tempOut)) {
+        if (file_exists($tempOut)) {
             $result = file_get_contents($tempOut);
             if ($result !== false && $result !== '') {
                 @unlink($tempOut);
                 return $result;
             }
-        } elseif ($exitCode !== 0) {
-            error_log('P7MDecoder: openssl smime verify failed (exit ' . $exitCode . '): ' . implode("\n", $output));
+        }
+        if ($exitCode !== 0) {
+            error_log('P7MDecoder: openssl smime verify warning (exit ' . $exitCode . ')');
         }
 
         $cmd = sprintf(
@@ -316,14 +317,15 @@ final class P7MDecoder
         );
         exec($cmd, $output, $exitCode);
 
-        if ($exitCode === 0 && file_exists($tempOut)) {
+        if (file_exists($tempOut)) {
             $result = file_get_contents($tempOut);
             if ($result !== false && $result !== '') {
                 @unlink($tempOut);
                 return $result;
             }
-        } elseif ($exitCode !== 0) {
-            error_log('P7MDecoder: openssl cms verify failed (exit ' . $exitCode . '): ' . implode("\n", $output));
+        }
+        if ($exitCode !== 0) {
+            error_log('P7MDecoder: openssl cms verify warning (exit ' . $exitCode . ')');
         }
 
         @unlink($tempOut);

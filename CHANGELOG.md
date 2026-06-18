@@ -5,6 +5,11 @@ Tutti i cambiamenti notevoli a questo progetto saranno documentati in questo fil
 Il formato si basa su [Keep a Changelog](https://keepachangelog.com/it/1.1.0/),
 e questo progetto aderisce al [Semantic Versioning](https://semver.org/lang/it/).
 
+## [1.0.3] - 2026-06-18
+
+### Fixed
+- runOpenSslVerify(): accetta output anche con exit code ≠ 0 (es. firma non valida ma XML estratto correttamente)
+
 ## [1.0.2] - 2026-06-18
 
 ### Fixed
