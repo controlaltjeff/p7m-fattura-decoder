@@ -97,10 +97,10 @@ class P7MDecoderTest extends TestCase
     {
         $dir = dirname(__DIR__) . '/tests/fixtures/valid';
 
-        return [
-            'DER format' => [$dir . '/test-invoice.p7m'],
-            'PEM format' => [$dir . '/test-invoice.p7m.pem'],
-        ];
+        return array(
+            'DER format' => array($dir . '/test-invoice.p7m'),
+            'PEM format' => array($dir . '/test-invoice.p7m.pem'),
+        );
     }
 
     public function testDecodedStringMatchesOriginal(): void
